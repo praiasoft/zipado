@@ -63,6 +63,7 @@ public class Prioridade {
 		nos[y] = aux;
 	}
 
+
 	@Override
 	public String toString() {
 		

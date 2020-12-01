@@ -1,7 +1,7 @@
 package br.com.praiasoft.zipado;
 
 public class No {
-	private byte simbolo;
+	private String simbolo;
 	private long frequencia;
 	
 	private No esquerdo;
@@ -9,7 +9,7 @@ public class No {
 	
 	private String bits;
 	
-	public No(byte simbolo) {
+	public No(String simbolo) {
 		super();
 		this.simbolo = simbolo;
 	}
@@ -35,16 +35,16 @@ public class No {
 	public void setFrequencia(long frequencia) {
 		this.frequencia = frequencia;
 	}
-	public byte getSimbolo() {
+	public String getSimbolo() {
 		return simbolo;
 	}
-	public void setSimbolo(byte simbolo) {
+	public void setSimbolo(String simbolo) {
 		this.simbolo = simbolo;
 	}
 
 	@Override
 	public String toString() {
-		return "No [simbolo=" + (char) simbolo + ", frequencia=" + frequencia + "]";
+		return "No [simbolo=" + simbolo + ", frequencia=" + frequencia + "]";
 	}
 
 	@Override
