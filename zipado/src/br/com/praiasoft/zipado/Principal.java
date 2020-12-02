@@ -7,7 +7,7 @@ public class Principal {
 		
 		Compactador compactador = new Compactador(true);
 		
-		byte resultadoCompactado[] = compactador.compactarTexto("oratoroeuaroupadoreideroma", "texto-compactado.zipado");
+		byte resultadoCompactado[] = compactador.compactarTexto("o rato roeu a roupa do rei de roma", "texto-compactado.zipado");
 		
 	}
 }

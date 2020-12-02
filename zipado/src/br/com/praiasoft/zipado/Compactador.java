@@ -1,16 +1,19 @@
 package br.com.praiasoft.zipado;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Compactador {
 	
-	private boolean depurar = true;		
-	
+	private boolean depurar = true;	
 	private Map<String, No> nosEncontrados = new HashMap<String, No>();
+	private BitSet bitsCompactados = new BitSet();
+	private BitSet arvoreCompactada = new BitSet();
 	
 	public Compactador(boolean depurar) {
 		super();
@@ -53,32 +56,58 @@ public class Compactador {
 		
 		System.out.println(texto);
 		
-		long totalBits = 0;
-		String bitsCompactados = "";
+		int totalBits = 0;
+		String bitsCompactadosStr = "";
 		for(String simbolo: texto.split("")) {
-			bitsCompactados += nosEncontrados.get(simbolo).getBits() +" ";
-			totalBits += nosEncontrados.get(simbolo).getBits().length();
+			
+			String bitsSimbolo = nosEncontrados.get(simbolo).getBits();
+			for(byte s: bitsSimbolo.getBytes()) {
+				if(s == '1') {
+					bitsCompactados.set(totalBits);
+				}
+				totalBits++;
+			}
+			bitsCompactadosStr += bitsSimbolo +" ";
 		}
 		
-		System.out.println(bitsCompactados);
+
+		System.out.println(bitsCompactadosStr);
 		
-		var arvoreCompactada = compactaArvore(raiz);
 		var simbolosOrdenados = simbolosOrdenados(raiz);
+		var arvoreCompactadaStr = compactaArvore(raiz);
 		
-		System.out.printf("\nArvore compactada: %s-%s", arvoreCompactada, simbolosOrdenados);
+		var arvoreCompactadaBytes = arvoreCompactadaStr.getBytes();
+		for(int w=0; w < arvoreCompactadaStr.length(); w++) {
+			if(arvoreCompactadaBytes[w] == '1') {
+				arvoreCompactada.set(w);
+			}
+		}
 		
+		System.out.printf("\nArvore compactada: %s-%s", arvoreCompactadaStr, simbolosOrdenados);
 		
-		System.out.println(
-				"\n\nTotal de bytes compactados: " + (texto.length() - totalBits/8));
+		byte[] arrayTxt = String.format("%s\n%s\n%s\n%s",texto, arvoreCompactadaStr, simbolosOrdenados, bitsCompactadosStr).getBytes();
+		File fileTxt = new File(nomeArquqivo + ".txt");
+		FileOutputStream fosTxt = new FileOutputStream(fileTxt);
+		fosTxt.write(arrayTxt);
+		fosTxt.flush();
+		fosTxt.close();
 		
-		byte[] array = String.format("%s\n%s\n%s\n%s",texto, arvoreCompactada, simbolosOrdenados, bitsCompactados).getBytes();
-		File file = new File(nomeArquqivo + ".txt");
+		ByteArrayOutputStream  bytesArquivoCompactado = new ByteArrayOutputStream();
+		bytesArquivoCompactado.write(arvoreCompactada.toByteArray());
+		bytesArquivoCompactado.write(simbolosOrdenados.getBytes());
+		bytesArquivoCompactado.write(bitsCompactados.toByteArray());
+		
+		System.out.println("\n\nTamanho texto original: " + texto.length());
+		System.out.println("Tamanho arquivo compactado: " + bytesArquivoCompactado.size());
+		
+		File file = new File(nomeArquqivo);
 		FileOutputStream fos = new FileOutputStream(file);
-		fos.write(array);
+		
+		fos.write(bytesArquivoCompactado.toByteArray());
 		fos.flush();
 		fos.close();
 		
-		return array;
+		return bytesArquivoCompactado.toByteArray();
 	}
 	
 	private String simbolosOrdenados(No no) {
