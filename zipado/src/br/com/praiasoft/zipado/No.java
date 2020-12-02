@@ -29,6 +29,10 @@ public class No {
 		frequencia++;
 	}
 	
+	public boolean ehFolha() {
+		return ((direito == null) && (esquerdo == null) );
+	}
+	
 	public long getFrequencia() {
 		return frequencia;
 	}
@@ -83,6 +87,14 @@ public class No {
 
 	public void setBits(String bits) {
 		this.bits = bits;
+	}
+
+	public void setEsquerdo(No esquerdo) {
+		this.esquerdo = esquerdo;
+	}
+
+	public void setDireito(No direito) {
+		this.direito = direito;
 	}
 
 }

@@ -21,7 +21,7 @@ public class Compactador {
 	}
 
 	public byte[] compactarTexto( String texto, String nomeArquqivo ) throws IOException {
-				
+		
 		Prioridade prioridade;
 		int numeroDeCaracteresEncontrados = 0;
 		
