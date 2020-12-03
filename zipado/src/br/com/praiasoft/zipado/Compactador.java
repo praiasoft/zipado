@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ public class Compactador {
 	private Map<String, No> nosEncontrados = new HashMap<String, No>();
 	private BitSet bitsCompactados = new BitSet();
 	private BitSet arvoreCompactada = new BitSet();
+	private int digitoVerificador;
 	
 	public Compactador(boolean depurar) {
 		super();
@@ -24,6 +26,9 @@ public class Compactador {
 		
 		Prioridade prioridade;
 		int numeroDeCaracteresEncontrados = 0;
+		// setDigitoVerificador( texto.length() % 128);
+		
+		System.out.println("digito verificador: " + getDigitoVerificador());
 		
 		for(String simbolo: texto.split("")) {
 			No no = nosEncontrados.get(simbolo);
@@ -69,7 +74,7 @@ public class Compactador {
 			}
 			bitsCompactadosStr += bitsSimbolo +" ";
 		}
-		
+		setDigitoVerificador( totalBits );
 
 		System.out.println(bitsCompactadosStr);
 		
@@ -96,7 +101,9 @@ public class Compactador {
 		bytesArquivoCompactado.write(arvoreCompactada.toByteArray());
 		bytesArquivoCompactado.write(simbolosOrdenados.getBytes());
 		bytesArquivoCompactado.write(bitsCompactados.toByteArray());
+		bytesArquivoCompactado.write(intToBytes(digitoVerificador));
 		
+	
 		System.out.println("\n\nTamanho texto original: " + texto.length());
 		System.out.println("Tamanho arquivo compactado: " + bytesArquivoCompactado.size());
 		
@@ -108,6 +115,12 @@ public class Compactador {
 		fos.close();
 		
 		return bytesArquivoCompactado.toByteArray();
+	}
+	
+	private byte[] intToBytes( final int i ) {
+	    ByteBuffer bb = ByteBuffer.allocate(4); 
+	    bb.putInt(i); 
+	    return bb.array();
 	}
 	
 	private String simbolosOrdenados(No no) {
@@ -158,5 +171,13 @@ public class Compactador {
 			return "0" + esquerdo + direito;
 		}
 		return "";
+	}
+
+	public int getDigitoVerificador() {
+		return digitoVerificador;
+	}
+
+	public void setDigitoVerificador(int digitoVerificador) {
+		this.digitoVerificador = digitoVerificador;
 	}
 }
