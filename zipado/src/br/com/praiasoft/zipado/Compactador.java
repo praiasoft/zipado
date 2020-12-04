@@ -15,6 +15,7 @@ public class Compactador {
 	private Map<String, No> nosEncontrados = new HashMap<String, No>();
 	private BitSet bitsCompactados = new BitSet();
 	private BitSet arvoreCompactada = new BitSet();
+	
 	private int digitoVerificador;
 	
 	public Compactador(boolean depurar) {
@@ -26,10 +27,8 @@ public class Compactador {
 		
 		Prioridade prioridade;
 		int numeroDeCaracteresEncontrados = 0;
-		// setDigitoVerificador( texto.length() % 128);
 		
 		System.out.println("digito verificador: " + getDigitoVerificador());
-		
 		for(String simbolo: texto.split("")) {
 			No no = nosEncontrados.get(simbolo);
 			if( no == null ) {
@@ -42,7 +41,8 @@ public class Compactador {
 		
 		System.out.println("Número de caracteres encontrados: " + numeroDeCaracteresEncontrados );
 
-		prioridade = new Prioridade( (No[]) nosEncontrados.values().toArray( new No[nosEncontrados.size()] ) );
+		No vetorNosEncontrados[] = (No[]) nosEncontrados.values().toArray( new No[nosEncontrados.size()] );
+		prioridade = new Prioridade( vetorNosEncontrados );
 		
 		System.out.println(prioridade);
 		
@@ -55,9 +55,15 @@ public class Compactador {
 			prioridade.inserir(novo);
 		}
 		
-		No raiz = prioridade.remove();
+		No raiz;
+		if(numeroDeCaracteresEncontrados == 1) {
+			raiz = vetorNosEncontrados[0];
+			geraSequenciaDeBits(raiz,0, "1");
+		} else {
+			raiz = prioridade.remove();	
+			geraSequenciaDeBits(raiz,0, "");
+		}
 		
-		geraSequenciaDeBits(raiz,0, "");
 		
 		System.out.println(texto);
 		
@@ -69,13 +75,17 @@ public class Compactador {
 			for(byte s: bitsSimbolo.getBytes()) {
 				if(s == '1') {
 					bitsCompactados.set(totalBits);
+				} else {
+					bitsCompactados.clear(totalBits);
 				}
 				totalBits++;
 			}
 			bitsCompactadosStr += bitsSimbolo +" ";
 		}
+		
 		setDigitoVerificador( totalBits );
-
+		System.out.println("digito verificador(compactador): " + getDigitoVerificador());
+		
 		System.out.println(bitsCompactadosStr);
 		
 		var simbolosOrdenados = simbolosOrdenados(raiz);

@@ -50,6 +50,7 @@ public class Descompactador {
 		No noAtual = raiz;
 		int bitsLidos = 0;
 		for(int w=leitura; w<tamanho; w++) {
+
 			
 			if(noAtual.ehFolha()) {
 				var simbolo = noAtual.getSimbolo();
@@ -57,11 +58,10 @@ public class Descompactador {
 				resposta += simbolo;
 				noAtual = raiz;
 			}
-			
 			if( bitsLidos == digitoVerificador )
 			{
 				break;
-			}
+			}			
 
 			var bit = bitsTextoCompactado.get(w);
 			bitsLidos++;
@@ -74,11 +74,11 @@ public class Descompactador {
 			}
 			
 			if(noAtual == null) {
-				System.out.print("-");
+//				System.out.print("-");
 				noAtual = raiz;
 			}
 		}
-		System.out.println();
+//		System.out.println();
 		
 		return resposta;
 	}
