@@ -16,7 +16,7 @@ public class Compactador {
 	private BitSet bitsCompactados = new BitSet();
 	private BitSet arvoreCompactada = new BitSet();
 	
-	private int digitoVerificador;
+	private byte digitoVerificador;
 	
 	public Compactador(boolean depurar) {
 		super();
@@ -28,7 +28,6 @@ public class Compactador {
 		Prioridade prioridade;
 		int numeroDeCaracteresEncontrados = 0;
 		
-		System.out.println("digito verificador: " + getDigitoVerificador());
 		for(String simbolo: texto.split("")) {
 			No no = nosEncontrados.get(simbolo);
 			if( no == null ) {
@@ -83,9 +82,6 @@ public class Compactador {
 			bitsCompactadosStr += bitsSimbolo +" ";
 		}
 		
-		setDigitoVerificador( totalBits );
-		System.out.println("digito verificador(compactador): " + getDigitoVerificador());
-		
 		System.out.println(bitsCompactadosStr);
 		
 		var simbolosOrdenados = simbolosOrdenados(raiz);
@@ -107,13 +103,18 @@ public class Compactador {
 		fosTxt.flush();
 		fosTxt.close();
 		
+		int tamanhoBitsCompactados = bitsCompactados.toByteArray().length;
+		
+		setDigitoVerificador( (byte) ( (tamanhoBitsCompactados)*8 - totalBits) );
+		
 		ByteArrayOutputStream  bytesArquivoCompactado = new ByteArrayOutputStream();
 		bytesArquivoCompactado.write(arvoreCompactada.toByteArray());
 		bytesArquivoCompactado.write(simbolosOrdenados.getBytes());
+		bytesArquivoCompactado.write(digitoVerificador);
 		bytesArquivoCompactado.write(bitsCompactados.toByteArray());
-		bytesArquivoCompactado.write(intToBytes(digitoVerificador));
 		
-	
+		System.out.println("\nDigito verificador(compactador): " + getDigitoVerificador());
+			
 		System.out.println("\n\nTamanho texto original: " + texto.length());
 		System.out.println("Tamanho arquivo compactado: " + bytesArquivoCompactado.size());
 		
@@ -126,13 +127,7 @@ public class Compactador {
 		
 		return bytesArquivoCompactado.toByteArray();
 	}
-	
-	private byte[] intToBytes( final int i ) {
-	    ByteBuffer bb = ByteBuffer.allocate(4); 
-	    bb.putInt(i); 
-	    return bb.array();
-	}
-	
+
 	private String simbolosOrdenados(No no) {
 		
 		if(no != null) {
@@ -175,7 +170,6 @@ public class Compactador {
 			var direito = compactaArvore(no.getDireito());
 			
 			if(esquerdo.isEmpty() && direito.isEmpty()) {
-				// return String.format("%c", no.getSimbolo());
 				return "1";
 			} 
 			return "0" + esquerdo + direito;
@@ -183,11 +177,11 @@ public class Compactador {
 		return "";
 	}
 
-	public int getDigitoVerificador() {
+	public byte getDigitoVerificador() {
 		return digitoVerificador;
 	}
 
-	public void setDigitoVerificador(int digitoVerificador) {
+	public void setDigitoVerificador(byte digitoVerificador) {
 		this.digitoVerificador = digitoVerificador;
 	}
 }

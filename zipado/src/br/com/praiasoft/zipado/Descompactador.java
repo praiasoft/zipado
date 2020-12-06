@@ -1,6 +1,5 @@
 package br.com.praiasoft.zipado;
 
-import java.nio.ByteBuffer;
 import java.util.BitSet;
 
 public class Descompactador {
@@ -17,75 +16,51 @@ public class Descompactador {
 		textoCompactado = txtCompac;
 		bitsTextoCompactado = BitSet.valueOf(textoCompactado);
 		
-        setDigitoVerificador(
-        	convertByteArrayToInt(	
-        		new byte[] {
-        				textoCompactado[textoCompactado.length-4],
-        				textoCompactado[textoCompactado.length-3],
-        				textoCompactado[textoCompactado.length-2],
-        				textoCompactado[textoCompactado.length-1],
-        			}
-        		)
-        	);
-		
-		
-		System.out.println("digito verificador(descompactador): " + getDigitoVerificador());
-		
 		int numSimbolosArvore = contaNumSimbolosArvore();
 		
+		System.out.printf("\ntamanho do arquivo: %d", textoCompactado.length);
 		System.out.printf("\nTamanho da arvore:  %dbits %dbytes", tamanhoArvore, tamanhoArvore/8+1);
 		System.out.printf("\nNumeros de caracteres na arvore: %d", numSimbolosArvore);
+			
+		setDigitoVerificador(textoCompactado[tamanhoArvore/8+1 + numSimbolosArvore]);
 		
-		int tamanho = textoCompactado.length * 8 - Integer.BYTES; // +1-8;
-		leitura = (tamanhoArvore/8+1)*8 + (numSimbolosArvore)*8 ;
-		
+		System.out.println("\nDigito verificador(descompactador): " + getDigitoVerificador());
+	
+		leitura = (tamanhoArvore/8+1)*8 + (numSimbolosArvore)*8 + 8;
+		int tamanho = textoCompactado.length * 8 - getDigitoVerificador();
+
 		No raiz = montaArvore( );
 		
-		System.out.println("\n\n");
-		imprimirArvore(raiz, 0);
+		if(raiz.ehFolha()) {
+			tamanho--;
+		}
 		
-		System.out.println();
+		imprimirArvore(raiz, 0);
 		
 		String resposta = "";		
 		No noAtual = raiz;
-		int bitsLidos = 0;
-		for(int w=leitura; w<tamanho; w++) {
+		
+		for(int w = leitura; w<=tamanho; w++) {
 
-			
-			if(noAtual.ehFolha()) {
+			var bit = bitsTextoCompactado.get(w);
+
+			if(noAtual!=null && noAtual.ehFolha()) {
 				var simbolo = noAtual.getSimbolo();
-//				System.out.print(simbolo);
 				resposta += simbolo;
 				noAtual = raiz;
 			}
-			if( bitsLidos == digitoVerificador )
-			{
-				break;
-			}			
-
-			var bit = bitsTextoCompactado.get(w);
-			bitsLidos++;
+			
 			if(bit) {
-//				System.out.print("1");
 				noAtual = noAtual.getDireito();
 			} else {
-//				System.out.print("0");
 				noAtual = noAtual.getEsquerdo();
 			}
 			
 			if(noAtual == null) {
-//				System.out.print("-");
 				noAtual = raiz;
 			}
 		}
-//		System.out.println();
-		
 		return resposta;
-	}
-	
-	private int convertByteArrayToInt(byte[] intBytes){
-	    ByteBuffer byteBuffer = ByteBuffer.wrap(intBytes);
-	    return byteBuffer.getInt();
 	}
 	
 	private No montaArvore( ) {
